@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+<script>
+        tailwind.config = {<!DOCTYPE html>
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
@@ -12,8 +13,6 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
@@ -131,6 +130,7 @@
                         <span class="bg-emerald-900/60 px-3 py-1 rounded-lg border border-emerald-500/30"><i class="fa-solid fa-check mr-1 text-emerald-400"></i>一覧＆再読み込み保持</span>
                         <span class="bg-emerald-900/60 px-3 py-1 rounded-lg border border-emerald-500/30"><i class="fa-solid fa-check mr-1 text-emerald-400"></i>編集・削除・ソート</span>
                         <span class="bg-emerald-900/60 px-3 py-1 rounded-lg border border-emerald-500/30"><i class="fa-solid fa-check mr-1 text-emerald-400"></i>Chart.js 生育グラフ</span>
+                        <span class="bg-emerald-900/60 px-3 py-1 rounded-lg border border-emerald-500/30"><i class="fa-brands fa-google mr-1 text-emerald-400"></i>Googleログイン認証対応</span>
                     </div>
                 </div>
             </div>
@@ -214,329 +214,444 @@
                     <div class="mt-6 pt-4 border-t border-slate-100 bg-emerald-50/50 p-4 rounded-xl border border-emerald-100">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-xs font-bold text-emerald-900 flex items-center">
-                                <i class="fa-solid fa-code text-emerald-600 mr-1.5"></i> GitHub `plantcheck` 提出用コード
+                                <i class="fa-solid fa-code text-emerald-600 mr-1.5"></i> GitHub `plantcheck` 提出用コード (Googleログイン機能付き)
                             </span>
                         </div>
                         <p class="text-xs text-slate-600 mb-3">
-                            この設定で動作する1ファイル完結型 `index.html` コードを生成・コピーしてGitHubにアップロードできます。
+                            Firebase (`purant`) 設定および **Googleログイン機能** が組み込まれた1ファイル完結型 `index.html` コードをコピーできます。
                         </p>
-                        <button onclick="copyPlantcheckSingleCode()" class="w-full bg-white hover:bg-emerald-100 text-emerald-700 border border-emerald-300 font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center space-x-1">
+                        <button onclick="copyPlantcheckSingleCode()" class="w-full bg-white hover:bg-emerald-100 text-emerald-700 border border-emerald-300 font-medium py-2 px-3 rounded-lg text-xs transition flex items-center justify-center space-x-1 shadow-sm">
                             <i class="fa-solid fa-copy"></i>
-                            <span>完全版 index.html コードをコピー (Firebase: purant 設定済み)</span>
+                            <span>Googleログイン対応 index.html コードをコピー</span>
                         </button>
                     </div>
                 </div>
 
                 <!-- Right Column: Analytics Chart & Data Records List -->
-                <div class="lg:col-span-7 space-y-6">
-                    
-                    <!-- Analytics Growth Chart -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
-                        <div class="flex justify-between items-center mb-3">
-                            <h3 class="font-bold text-slate-800 text-sm flex items-center">
-                                <i class="fa-solid fa-chart-line text-emerald-600 mr-2"></i>
-                                生育成長グラフ (発展機能)
-                            </h3>
-                            <span class="text-xs text-slate-500" id="chart-subtitle">草丈 (cm) と 葉枚数 (枚) の推移</span>
-                        </div>
-                        <div class="h-48 w-full">
-                            <canvas id="growthChart"></canvas>
-                        </div>
-                    </div>
+        // --- STREAMING_CHUNK:Generating Standalone plantcheck Index.html Code with Google Auth & Firebase Config... ---
+        function copyPlantcheckSingleCode() {
+            const htmlCode = `<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>作物の生育記録 (plantcheck)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"><\/script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-100 text-slate-800 p-4 sm:p-6 min-h-screen font-sans">
+    <!-- Toast Notification Banner -->
+    <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl flex items-center space-x-2 text-xs border border-slate-700">
+        <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toast-msg">通知メッセージ</span>
+    </div>
 
-                    <!-- Records Management List Section -->
-                    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                        
-                        <!-- Search & Filter Controls (Advanced Features) -->
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-3 border-b border-slate-100">
-                            <div>
-                                <h3 class="font-bold text-slate-800 text-base flex items-center">
-                                    <i class="fa-solid fa-list-check text-emerald-600 mr-2"></i>
-                                    登録済み生育記録一覧
-                                </h3>
-                                <p class="text-xs text-slate-500">件数: <span id="record-count" class="font-bold text-emerald-600">0</span> 件</p>
-                            </div>
-
-                            <!-- Filter Controls -->
-                            <div class="flex items-center space-x-2 w-full sm:w-auto">
-                                <!-- Crop Filter Dropdown -->
-                                <select id="filter-crop" onchange="renderRecords()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 text-xs rounded-lg text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                                    <option value="ALL">すべての作物</option>
-                                </select>
-                                <!-- Date Sort Toggle -->
-                                <select id="sort-order" onchange="renderRecords()" class="px-2.5 py-1.5 bg-slate-50 border border-slate-200 text-xs rounded-lg text-slate-700 focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                                    <option value="NEWEST">日付: 新しい順</option>
-                                    <option value="OLDEST">日付: 古い順</option>
-                                    <option value="HEIGHT_DESC">草丈: 高い順</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Data List Container -->
-                        <div id="records-list" class="space-y-3 max-h-[420px] overflow-y-auto custom-scrollbar pr-1">
-                            <!-- Populated dynamically via JS -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-
-        <!-- TAB 2: マイ作物紹介サイト (vegetable) ジェネレーター -->
-        <section id="tab-vegetable" class="tab-content hidden space-y-6">
-            
-            <!-- Banner Header -->
-            <div class="bg-gradient-to-r from-amber-700 to-orange-600 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
-                <div class="relative z-10 max-w-3xl">
-                    <div class="inline-flex items-center space-x-2 px-3 py-1 bg-white/10 backdrop-blur-md rounded-full text-xs text-amber-200 mb-3 border border-white/20">
-                        <i class="fa-solid fa-star"></i> 課題2完全攻略：GitHub Pages + HTML/CSS/JS (vegetable)
-                    </div>
-                    <h2 class="text-2xl sm:text-3xl font-bold mb-2">マイ作物 紹介サイトジェネレーター</h2>
-                    <p class="text-amber-100 text-sm leading-relaxed mb-4">
-                        採点条件1〜10（大見出し、特徴3文、栽培ポイント3つ、表、画像、CSS、西条農業高校ボタン、外部栽培サイトボタン）を100%自動クリアするサイトを作成しプレビュー・コード生成ができます。
-                    </p>
-                </div>
+    <div class="max-w-4xl mx-auto space-y-6">
+        <!-- Header with Google Auth Bar -->
+        <header class="bg-gradient-to-r from-emerald-800 via-emerald-700 to-teal-700 text-white p-5 rounded-2xl shadow-md flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h1 class="text-2xl font-bold flex items-center"><i class="fa-solid fa-seedling mr-2.5"></i> 作物生育管理アプリ (plantcheck)</h1>
+                <p class="text-xs text-emerald-100 mt-1 flex items-center gap-2">
+                    <span>Firebase Project: <span class="font-mono bg-emerald-900/80 px-2 py-0.5 rounded border border-emerald-600/50">purant</span></span>
+                    <span id="sync-status" class="px-2 py-0.5 rounded-full bg-emerald-900/80 text-emerald-200 border border-emerald-500/30 text-[10px]">
+                        <i class="fa-solid fa-cloud-arrow-up mr-1"></i> 初期化中...
+                    </span>
+                </p>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                <!-- Left: Web Page Builder Settings -->
-                <div class="lg:col-span-5 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4 max-h-[800px] overflow-y-auto custom-scrollbar">
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-100">
-                        <h3 class="font-bold text-slate-800 text-base flex items-center">
-                            <i class="fa-solid fa-sliders text-amber-600 mr-2"></i> サイト構成データの設定
-                        </h3>
-                        <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded-full font-bold">100点仕様基準</span>
-                    </div>
-
-                    <!-- Crop Select & Customizer -->
-                    <div class="space-y-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">メイン作物名 (条件1: 大見出し)</label>
-                            <input type="text" id="v-title" value="甘くておいしい「ミニトマト」" oninput="updateVegetablePreview()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm">
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">作物の特徴の説明文 (条件2: 3文以上)</label>
-                            <textarea id="v-desc" rows="3" oninput="updateVegetablePreview()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs">ミニトマトは家庭菜園でも大人気のビタミン豊富なお野菜です。日当たりの良い場所で育てることで甘みが増し、たくさんの実を収穫できます。初心者でも比較的育てやすく、毎日の観察がとても楽しい作物です。</textarea>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">栽培のポイント (条件3: 箇条書き3つ以上)</label>
-                            <div class="space-y-1.5">
-                                <input type="text" id="v-p1" value="日当たりと風通しの良い場所で管理する" oninput="updateVegetablePreview()" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                                <input type="text" id="v-p2" value="脇芽（わきめ）を早めにつみ取って栄養を集中させる" oninput="updateVegetablePreview()" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                                <input type="text" id="v-p3" value="水やりは土の表面が乾いてからたっぷりと与える" oninput="updateVegetablePreview()" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                            </div>
-                        </div>
-
-                        <!-- Table Information -->
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">栽培基本情報 (条件4: 表 table)</label>
-                            <div class="grid grid-cols-3 gap-2">
-                                <input type="text" id="v-sow" value="4月〜5月" oninput="updateVegetablePreview()" placeholder="種まき時期" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                                <input type="text" id="v-harvest" value="6月〜8月" oninput="updateVegetablePreview()" placeholder="収穫時期" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                                <input type="text" id="v-diff" value="★☆☆ (簡単)" oninput="updateVegetablePreview()" placeholder="難易度" class="px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                            </div>
-                        </div>
-
-                        <!-- Image URL -->
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-700 mb-1">画像URL (条件5: 画像1枚以上)</label>
-                            <input type="text" id="v-img" value="https://images.unsplash.com/photo-1592841200221-a6898f307baa?auto=format&fit=crop&w=800&q=80" oninput="updateVegetablePreview()" class="w-full px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs">
-                        </div>
-
-                        <!-- Required External Buttons -->
-                        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 space-y-2">
-                            <span class="text-xs font-bold text-amber-900 block"><i class="fa-solid fa-link"></i> 指定ボタンリンク設定</span>
-                            <div>
-                                <label class="block text-[11px] text-slate-600">ボタン①: 西条農業高校サイト URL (条件7)</label>
-                                <input type="text" id="v-btn1-url" value="https://saijo-ah.esnet.ed.jp/" oninput="updateVegetablePreview()" class="w-full px-2.5 py-1 bg-white border border-slate-300 rounded text-xs">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] text-slate-600">ボタン②: 外部栽培方法サイト URL (条件8: サカタのタネ等)</label>
-                                <input type="text" id="v-btn2-url" value="https://www.sakataseed.co.jp/" oninput="updateVegetablePreview()" class="w-full px-2.5 py-1 bg-white border border-slate-300 rounded text-xs">
-                            </div>
-                        </div>
-
-                        <!-- Bonus Features Checkboxes -->
-                        <div class="p-3 bg-slate-100 rounded-xl space-y-1.5 text-xs">
-                            <span class="font-bold text-slate-700 block mb-1"><i class="fa-solid fa-circle-plus text-emerald-600"></i> 加点機能の設定 (+40点分)</span>
-                            <label class="flex items-center space-x-2">
-                                <input type="checkbox" id="bonus-js" checked onchange="updateVegetablePreview()" class="rounded text-amber-600">
-                                <span>JS動き効果 (ボタンクリックでメッセージ＆色変化 / +10点)</span>
-                            </label>
-                            <label class="flex items-center space-x-2">
-                                <input type="checkbox" id="bonus-multi" checked onchange="updateVegetablePreview()" class="rounded text-amber-600">
-                                <span>複数作物紹介＆ページ内リンク (ナス追加 / +10点)</span>
-                            </label>
-                            <label class="flex items-center space-x-2">
-                                <input type="checkbox" id="bonus-responsive" checked onchange="updateVegetablePreview()" class="rounded text-amber-600">
-                                <span>レスポンシブデザイン (スマホ最適化CSS / +10点)</span>
-                            </label>
-                        </div>
-
-                        <!-- Action Buttons -->
-                        <div class="pt-2 space-y-2">
-                            <button onclick="copyVegetableHTML()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-medium py-2.5 px-4 rounded-xl shadow-md transition flex items-center justify-center space-x-2">
-                                <i class="fa-solid fa-file-code"></i>
-                                <span>index.html コードをコピー</span>
-                            </button>
-                            <button onclick="copyVegetableReadme()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-medium py-2 px-4 rounded-xl transition text-xs flex items-center justify-center space-x-2">
-                                <i class="fa-solid fa-book-bookmark"></i>
-                                <span>加点対象: README.md をコピー (+10点)</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right: Live Preview Box -->
-                <div class="lg:col-span-7 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col h-[800px]">
-                    <div class="flex items-center justify-between pb-3 border-b border-slate-100 mb-3">
-                        <span class="font-bold text-slate-800 text-sm flex items-center">
-                            <i class="fa-solid fa-laptop-code text-amber-600 mr-2"></i> リアルタイム Web サイトプレビュー
-                        </span>
-                        <div class="flex items-center space-x-2 text-xs text-slate-500">
-                            <span class="w-3 h-3 rounded-full bg-red-400"></span>
-                            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
-                            <span class="w-3 h-3 rounded-full bg-green-400"></span>
-                        </div>
-                    </div>
-                    <div class="flex-grow rounded-xl border border-slate-200 overflow-hidden bg-slate-900">
-                        <iframe id="vegetable-preview-frame" class="w-full h-full bg-white"></iframe>
-                    </div>
-                </div>
+            <!-- Google Login Container -->
+            <div id="auth-container" class="flex items-center">
+                <!-- Dynamically rendered via Firebase Auth state -->
             </div>
-        </section>
+        </header>
 
-
-        <!-- TAB 3: 提出＆振り返りアシスタント -->
-        <section id="tab-submission" class="tab-content hidden space-y-6">
-            
-            <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-lg space-y-2">
-                <h2 class="text-2xl font-bold flex items-center">
-                    <i class="fa-solid fa-clipboard-check text-emerald-400 mr-3"></i> 課題提出＆自己採点チェッカー
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- Form Card -->
+            <div class="md:col-span-5 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+                <h2 class="font-bold text-slate-800 text-base pb-2 border-b border-slate-100 flex items-center">
+                    <i class="fa-solid fa-pen-to-square text-emerald-600 mr-2"></i> <span id="p-form-title">生育データの記録</span>
                 </h2>
-                <p class="text-slate-300 text-sm">
-                    提出フォームへ送る前に、必要な必須・加点項目とURL準備をここで確認しましょう。
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 
-                <!-- Checklist 1: plantcheck -->
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                    <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                        <h3 class="font-bold text-slate-800 text-base flex items-center">
-                            <i class="fa-solid fa-seedling text-emerald-600 mr-2"></i> 1. plantcheck 点数確認 (100点満点)
-                        </h3>
-                        <a href="https://forms.gle/vtAN8RLPo2duXGYc9" target="_blank" class="text-xs bg-emerald-600 text-white px-3 py-1 rounded-lg hover:bg-emerald-700 transition">
-                            提出フォームへ <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
-                        </a>
-                    </div>
-
-                    <div class="space-y-2.5 text-xs text-slate-700">
-                        <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
-                            <span><i class="fa-solid fa-check text-emerald-500 mr-2"></i> 5項目（作物名/葉枚数/草丈/日付/メモ）入力・保存</span>
-                            <span class="font-bold text-emerald-600">30点</span>
-                        </label>
-                        <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
-                            <span><i class="fa-solid fa-check text-emerald-500 mr-2"></i> 一覧表示＆再読み込み時保持 (Firestore)</span>
-                            <span class="font-bold text-emerald-600">20点</span>
-                        </label>
-                        <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
-                            <span><i class="fa-solid fa-check text-emerald-500 mr-2"></i> Firebase Hosting で公開</span>
-                            <span class="font-bold text-emerald-600">15点</span>
-                        </label>
-                        <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
-                            <span><i class="fa-solid fa-check text-emerald-500 mr-2"></i> GitHub Public リポジトリ `plantcheck` 作成</span>
-                            <span class="font-bold text-emerald-600">10点</span>
-                        </label>
-                        <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
-                            <span><i class="fa-solid fa-check text-emerald-500 mr-2"></i> スマホ対応・見やすい画面</span>
-                            <span class="font-bold text-emerald-600">10点</span>
-                        </label>
-                        <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
-                            <span><i class="fa-solid fa-check text-emerald-500 mr-2"></i> 発展機能（編集・削除・ソート・絞り込み・グラフ）</span>
-                            <span class="font-bold text-emerald-600">10点</span>
-                        </label>
-                        <label class="flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-100">
-                            <span><i class="fa-solid fa-check text-emerald-500 mr-2"></i> 振り返りコメント (3〜5行)</span>
-                            <span class="font-bold text-emerald-600">5点</span>
-                        </label>
-                    </div>
+                <div id="p-err-box" class="hidden p-3 bg-rose-50 text-rose-600 text-xs rounded-xl flex items-center space-x-1.5">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="p-err-msg">全必須項目を入力してください。</span>
                 </div>
 
-                <!-- Checklist 2: vegetable -->
-                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                    <div class="flex justify-between items-center pb-3 border-b border-slate-100">
-                        <h3 class="font-bold text-slate-800 text-base flex items-center">
-                            <i class="fa-solid fa-carrot text-amber-600 mr-2"></i> 2. vegetable 点数確認 (100点+加点)
-                        </h3>
-                        <a href="https://forms.gle/EeQaxXNeVY4wRAjG7" target="_blank" class="text-xs bg-amber-600 text-white px-3 py-1 rounded-lg hover:bg-amber-700 transition">
-                            提出フォームへ <i class="fa-solid fa-arrow-up-right-from-square ml-1"></i>
-                        </a>
+                <form id="plantForm" onsubmit="handlePlantSubmit(event)" class="space-y-3 text-xs">
+                    <input type="hidden" id="p-edit-id" value="">
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">作物名 <span class="text-rose-500">*</span></label>
+                        <input type="text" id="p-crop" placeholder="例: ミニトマト" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
                     </div>
-
-                    <div class="space-y-2 text-xs text-slate-700">
-                        <div class="p-2 rounded-lg bg-amber-50 border border-amber-100">
-                            <span class="font-bold text-amber-900">条件1〜10 完全充足 (100点)</span>
-                            <p class="text-[11px] text-amber-800 mt-0.5">大見出し/説明3文/ポイント3つ/Table表/画像/CSS装飾/西条農業高校ボタン/栽培サイトボタン/index.html/GitHub Pages公開</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">葉枚数 (枚) <span class="text-rose-500">*</span></label>
+                            <input type="number" min="0" id="p-leaves" placeholder="8" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
                         </div>
-
-                        <div class="space-y-1 pt-1">
-                            <span class="font-bold text-slate-700 text-[11px] block">加点要素 (+40点分):</span>
-                            <div class="grid grid-cols-2 gap-1.5 text-[11px]">
-                                <span class="bg-slate-100 p-1.5 rounded"><i class="fa-solid fa-circle-check text-emerald-500"></i> JSで動的演出 (+10)</span>
-                                <span class="bg-slate-100 p-1.5 rounded"><i class="fa-solid fa-circle-check text-emerald-500"></i> 2作物&内リンク (+10)</span>
-                                <span class="bg-slate-100 p-1.5 rounded"><i class="fa-solid fa-circle-check text-emerald-500"></i> レスポンシブ対応 (+10)</span>
-                                <span class="bg-slate-100 p-1.5 rounded"><i class="fa-solid fa-circle-check text-emerald-500"></i> README作成 (+10)</span>
-                            </div>
+                        <div>
+                            <label class="block font-semibold text-slate-700 mb-1">草丈 (cm) <span class="text-rose-500">*</span></label>
+                            <input type="number" step="0.1" min="0" id="p-height" placeholder="24.5" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
                         </div>
                     </div>
-                </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">日付 <span class="text-rose-500">*</span></label>
+                        <input type="date" id="p-date" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block font-semibold text-slate-700 mb-1">メモ <span class="text-rose-500">*</span></label>
+                        <textarea id="p-memo" rows="3" placeholder="追肥を実施。元気に成長中。" required class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-500 outline-none resize-none"></textarea>
+                    </div>
+                    <div class="flex space-x-2 pt-1">
+                        <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl shadow-md transition">
+                            <i class="fa-solid fa-floppy-disk mr-1"></i> 保存する
+                        </button>
+                        <button type="button" id="p-btn-cancel" onclick="resetPlantForm()" class="hidden bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 px-3 rounded-xl transition">
+                            キャンセル
+                        </button>
+                    </div>
+                </form>
             </div>
 
-            <!-- Auto Reflection Text Generator (for plantcheck submission item 3) -->
-            <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-                <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-                    <h3 class="font-bold text-slate-800 text-base flex items-center">
-                        <i class="fa-solid fa-comment-dots text-indigo-600 mr-2"></i> 振り返りコメント (3〜5行) 自動生成ツール
-                    </h3>
-                    <button onclick="generateReflectionText()" class="text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 px-3 py-1 rounded-lg border border-indigo-200 transition">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i> 例文を更新生成
+            <!-- List & Analytics Column -->
+            <div class="md:col-span-7 space-y-4">
+                <!-- Chart Box -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200">
+                    <h2 class="font-bold text-slate-800 text-xs mb-2 flex items-center">
+                        <i class="fa-solid fa-chart-line text-emerald-600 mr-1.5"></i> 草丈 (cm) 推移グラフ
+                    </h2>
+                    <div class="h-40 w-full">
+                        <canvas id="appChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- List Box -->
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 space-y-3">
+                    <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                        <h2 class="font-bold text-slate-800 text-sm flex items-center">
+                            <i class="fa-solid fa-list text-emerald-600 mr-2"></i> 登録記録 (<span id="record-num">0</span>件)
+                        </h2>
+                        <div class="flex space-x-2 text-xs">
+                            <select id="filter-crop-select" onchange="renderPlantList()" class="bg-slate-50 border border-slate-200 px-2 py-1 rounded-lg text-xs">
+                                <option value="ALL">全作物</option>
+                            </select>
+                            <select id="p-sort" onchange="renderPlantList()" class="bg-slate-50 border border-slate-200 px-2 py-1 rounded-lg text-xs">
+                                <option value="NEWEST">新しい順</option>
+                                <option value="OLDEST">古い順</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="p-list-container" class="space-y-2.5 max-h-[320px] overflow-y-auto pr-1"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK Imports with Auth Support -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // User Provided Firebase Configuration for 'purant'
+        const firebaseConfig = {
+            apiKey: "AIzaSyDrJucr4LTbVXwInvmQOxkjONVCa1B3EXE",
+            authDomain: "purant.firebaseapp.com",
+            projectId: "purant",
+            storageBucket: "purant.firebasestorage.app",
+            messagingSenderId: "842988564424",
+            appId: "1:842988564424:web:eb57877c9df96a60195afd"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const googleProvider = new GoogleAuthProvider();
+
+        let recordsData = [];
+        let chartInstance = null;
+
+        // Toast Helper
+        window.showToast = function(msg, iconClass = "fa-solid fa-circle-check text-emerald-400") {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            document.getElementById('toast-icon').className = iconClass;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        };
+
+        // Google Login Action
+        window.loginWithGoogle = async function() {
+            try {
+                await signInWithPopup(auth, googleProvider);
+                showToast('Googleアカウントでログインしました！');
+            } catch (error) {
+                console.error("Google Auth error:", error);
+                showToast('Googleログインに失敗しました（ポップアップ拒否等の可能性）', 'fa-solid fa-circle-exclamation text-rose-400');
+            }
+        };
+
+        // Google Logout Action
+        window.logoutGoogle = async function() {
+            try {
+                await signOut(auth);
+                await signInAnonymously(auth);
+                showToast('ログアウトしました');
+            } catch (error) {
+                console.error("Logout error:", error);
+            }
+        };
+
+        // Firebase Auth State Observer
+        onAuthStateChanged(auth, async (user) => {
+            renderAuthUI(user);
+            if (!user) {
+                try {
+                    await signInAnonymously(auth);
+                } catch(e) {
+                    console.warn("Anonymous Auth fallback warning:", e);
+                }
+            }
+            subscribeFirestore();
+        });
+
+        function renderAuthUI(user) {
+            const container = document.getElementById('auth-container');
+            if (!container) return;
+
+            if (user && !user.isAnonymous) {
+                const name = user.displayName || user.email || 'ユーザー';
+                const photo = user.photoURL || 'https://placehold.co/32x32/10b981/ffffff?text=U';
+                container.innerHTML = \`
+                    <div class="flex items-center space-x-2 bg-emerald-900/80 p-1.5 pr-3 rounded-full border border-emerald-500/40">
+                        <img src="\${photo}" class="w-6 h-6 rounded-full border border-white/50" alt="avatar" onerror="this.src='https://placehold.co/32x32/10b981/ffffff?text=U'">
+                        <span class="text-xs font-semibold text-white max-w-[120px] truncate">\${escapeHtml(name)}</span>
+                        <button onclick="logoutGoogle()" class="text-[10px] bg-emerald-950 hover:bg-black text-emerald-200 px-2 py-0.5 rounded-lg border border-emerald-600 transition">ログアウト</button>
+                    </div>
+                \`;
+            } else {
+                container.innerHTML = \`
+                    <button onclick="loginWithGoogle()" class="bg-white text-slate-800 hover:bg-slate-100 font-bold text-xs px-3 py-2 rounded-xl shadow-md transition flex items-center space-x-2">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/></svg>
+                        <span>Googleでログイン</span>
                     </button>
-                </div>
-                <p class="text-xs text-slate-500">
-                    提出フォーム「3. 振り返りコメント(3〜5行):工夫した点、苦労した点、AIをどう使ったか」にそのまま貼り付けできる文章です。
-                </p>
+                \`;
+            }
+        }
 
-                <textarea id="reflection-output" rows="4" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs leading-relaxed focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+        function subscribeFirestore() {
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'plantcheck-default';
+            const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'records');
 
-                <button onclick="copyReflectionText()" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-medium py-2 px-4 rounded-xl transition flex items-center space-x-2">
-                    <i class="fa-solid fa-copy"></i>
-                    <span>振り返りコメントをコピー</span>
-                </button>
-            </div>
+            onSnapshot(colRef, (snapshot) => {
+                recordsData = snapshot.docs.map(docSnap => ({
+                    id: docSnap.id,
+                    ...docSnap.data()
+                }));
+                window.recordsData = recordsData;
+                updateCropFilter();
+                renderPlantList();
+                updateChart();
+                document.getElementById('sync-status').innerHTML = '<i class="fa-solid fa-cloud-check text-emerald-400 mr-1"></i> Firestore同期完了';
+            }, (error) => {
+                console.error("Firestore sync fallback to LocalStorage:", error);
+                document.getElementById('sync-status').innerHTML = '<i class="fa-solid fa-hard-drive text-amber-300 mr-1"></i> ローカル保存モード';
+                loadLocalStorage();
+            });
+        }
 
-        </section>
-    </main>
+        function loadLocalStorage() {
+            const local = localStorage.getItem('plantcheck_purant_records');
+            recordsData = local ? JSON.parse(local) : [];
+            window.recordsData = recordsData;
+            updateCropFilter();
+            renderPlantList();
+            updateChart();
+        }
+
+        window.savePlantRecord = async function(data, editId) {
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'plantcheck-default';
+            try {
+                if (editId) {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'records', editId);
+                    await updateDoc(docRef, data);
+                    showToast('記録を更新しました！');
+                } else {
+                    const colRef = collection(db, 'artifacts', appId, 'public', 'data', 'records');
+                    await addDoc(colRef, { ...data, createdAt: Date.now() });
+                    showToast('新しい記録を保存しました！');
+                }
+            } catch (err) {
+                // LocalStorage Fallback
+                if (editId) {
+                    const idx = recordsData.findIndex(r => r.id === editId);
+                    if (idx !== -1) recordsData[idx] = { id: editId, ...data };
+                } else {
+                    recordsData.unshift({ id: Date.now().toString(), ...data });
+                }
+                localStorage.setItem('plantcheck_purant_records', JSON.stringify(recordsData));
+                updateCropFilter();
+                renderPlantList();
+                updateChart();
+                showToast('ローカルストレージに保存しました！');
+            }
+        };
+
+        window.deletePlantRecord = async function(id) {
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'plantcheck-default';
+            try {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'records', id));
+                showToast('記録を削除しました');
+            } catch (err) {
+                recordsData = recordsData.filter(r => r.id !== id);
+                localStorage.setItem('plantcheck_purant_records', JSON.stringify(recordsData));
+                updateCropFilter();
+                renderPlantList();
+                updateChart();
+                showToast('記録を削除しました');
+            }
+        };
+
+        // Initialize Chart
+        const ctx = document.getElementById('appChart').getContext('2d');
+        chartInstance = new Chart(ctx, {
+            type: 'line',
+            data: { labels: [], datasets: [{ label: '草丈 (cm)', data: [], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', fill: true, tension: 0.3 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { ticks: { font: { size: 9 } } }, y: { ticks: { font: { size: 9 } } } } }
+        });
+
+        window.updateChart = function() {
+            if (!chartInstance || !recordsData) return;
+            const sorted = [...recordsData].sort((a,b) => new Date(a.date) - new Date(b.date));
+            chartInstance.data.labels = sorted.map(r => r.date);
+            chartInstance.data.datasets[0].data = sorted.map(r => r.height);
+            chartInstance.update();
+        };
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+    <\/script>
 
     <script>
-        // --- Tab Switching Logic ---
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
+        document.getElementById('p-date').value = new Date().toISOString().split('T')[0];
 
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('bg-white', 'text-emerald-700', 'shadow-sm');
-                btn.classList.add('text-slate-600');
-            });
-            const activeBtn = document.getElementById('btn-' + tabId);
-            if (activeBtn) {
-                activeBtn.classList.add('bg-white', 'text-emerald-700', 'shadow-sm');
-                activeBtn.classList.remove('text-slate-600');
+        function handlePlantSubmit(e) {
+            e.preventDefault();
+            const crop = document.getElementById('p-crop').value.trim();
+            const leaves = parseInt(document.getElementById('p-leaves').value, 10);
+            const height = parseFloat(document.getElementById('p-height').value);
+            const date = document.getElementById('p-date').value;
+            const memo = document.getElementById('p-memo').value.trim();
+            const editId = document.getElementById('p-edit-id').value;
+
+            const errBox = document.getElementById('p-err-box');
+            if (!crop || isNaN(leaves) || leaves < 0 || isNaN(height) || height < 0 || !date || !memo) {
+                errBox.classList.remove('hidden');
+                return;
             }
+            errBox.classList.add('hidden');
+
+            const recordObj = { crop, leaves, height, date, memo };
+            if (window.savePlantRecord) {
+                window.savePlantRecord(recordObj, editId);
+            }
+            resetPlantForm();
+        }
+
+        function resetPlantForm() {
+            document.getElementById('p-edit-id').value = '';
+            document.getElementById('p-crop').value = '';
+            document.getElementById('p-leaves').value = '';
+            document.getElementById('p-height').value = '';
+            document.getElementById('p-memo').value = '';
+            document.getElementById('p-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('p-form-title').innerText = '生育データの記録';
+            document.getElementById('p-btn-cancel').classList.add('hidden');
+            document.getElementById('p-err-box').classList.add('hidden');
+        }
+
+        function editPlantItem(id) {
+            const list = window.recordsData || [];
+            const item = list.find(r => r.id === id);
+            if (!item) return;
+
+            document.getElementById('p-edit-id').value = item.id;
+            document.getElementById('p-crop').value = item.crop;
+            document.getElementById('p-leaves').value = item.leaves;
+            document.getElementById('p-height').value = item.height;
+            document.getElementById('p-date').value = item.date;
+            document.getElementById('p-memo').value = item.memo;
+
+            document.getElementById('p-form-title').innerText = '記録の編集';
+            document.getElementById('p-btn-cancel').classList.remove('hidden');
+        }
+
+        function updateCropFilter() {
+            const list = window.recordsData || [];
+            const select = document.getElementById('filter-crop-select');
+            const current = select.value;
+            const crops = Array.from(new Set(list.map(r => r.crop)));
+
+            select.innerHTML = '<option value="ALL">全作物</option>';
+            crops.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c; opt.innerText = c;
+                select.appendChild(opt);
+            });
+            if (crops.includes(current)) select.value = current;
+        }
+
+        function renderPlantList() {
+            const list = window.recordsData || [];
+            const filterCrop = document.getElementById('filter-crop-select').value;
+            const sortOrder = document.getElementById('p-sort').value;
+
+            let filtered = [...list];
+            if (filterCrop !== 'ALL') filtered = filtered.filter(r => r.crop === filterCrop);
+            filtered.sort((a,b) => sortOrder==='NEWEST' ? new Date(b.date)-new Date(a.date) : new Date(a.date)-new Date(b.date));
+
+            document.getElementById('record-num').innerText = filtered.length;
+            const container = document.getElementById('p-list-container');
+
+            if (filtered.length === 0) {
+                container.innerHTML = '<p class="text-xs text-slate-400 text-center py-6">表示できる記録がありません。</p>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(r => \`
+                <div class="bg-slate-50 border border-slate-200 p-3 rounded-xl text-xs space-y-1.5 hover:border-emerald-300 transition">
+                    <div class="flex justify-between items-center font-bold">
+                        <span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded text-[11px]">\${escapeHtml(r.crop)}</span>
+                        <div class="flex items-center space-x-2">
+                            <span class="text-slate-400 font-normal text-[10px]"><i class="fa-regular fa-calendar mr-1"></i>\${r.date}</span>
+                            <button onclick="editPlantItem('\${r.id}')" class="text-slate-400 hover:text-emerald-600 p-1" title="編集"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="window.deletePlantRecord('\${r.id}')" class="text-slate-400 hover:text-rose-600 p-1" title="削除"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    </div>
+                    <div class="flex space-x-4 text-slate-700 font-semibold bg-white p-1.5 rounded border border-slate-100">
+                        <span>草丈: <strong class="text-emerald-700 font-bold">\${r.height}</strong> cm</span>
+                        <span>葉枚数: <strong class="text-emerald-700 font-bold">\${r.leaves}</strong> 枚</span>
+                    </div>
+                    <p class="text-slate-600 leading-relaxed whitespace-pre-wrap pl-0.5">\${escapeHtml(r.memo)}</p>
+                </div>
+            \`).join('');
+        }
+
+        function escapeHtml(str) {
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+    <\/script>
+</body>
+</html>`;
+
+            copyToClipboard(htmlCode, 'Googleログイン対応 plantcheck 用 index.html コードをコピーしました！');
+        }
 
             document.querySelectorAll('.m-tab-btn').forEach(btn => {
                 btn.classList.remove('text-emerald-600', 'font-bold');
